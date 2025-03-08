@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Attendance System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>College Attendance System</h1>
+            <div id="user-info">
+                <span id="username-display"></span>
+                <span id="role-display"></span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <!-- Login Form -->
+        <div id="login-container" class="auth-container">
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <!-- Main Application (hidden until logged in) -->
+        <div id="app-container" class="hidden">
+            <!-- Admin Panel -->
+            <div id="admin-panel" class="hidden">
+                <h2>Admin Panel</h2>
+                <div class="tab-navigation">
+                    <button class="tab-btn active" data-tab="user-management">User Management</button>
+                    <button class="tab-btn" data-tab="class-management">Class Management</button>
+                    <button class="tab-btn" data-tab="reports">Reports</button>
+                </div>
+
+                <div id="user-management" class="tab-content">
+                    <h3>User Management</h3>
+                    <button id="add-user-btn">Add New User</button>
+                    <div id="user-form-container" class="hidden">
+                        <form id="user-form">
+                            <div class="form-group">
+                                <label for="new-username">Username:</label>
+                                <input type="text" id="new-username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new-password">Password:</label>
+                                <input type="password" id="new-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="role">Role:</label>
+                                <select id="role" required>
+                                    <option value="admin">Admin</option>
+                                    <option value="faculty">Faculty</option>
+                                    <option value="staff">Staff</option>
+                                </select>
+                            </div>
+                            <button type="submit">Save User</button>
+                            <button type="button" id="cancel-user-btn">Cancel</button>
+                        </form>
+                    </div>
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-list"></tbody>
+                    </table>
+                </div>
+
+                <div id="class-management" class="tab-content hidden">
+                    <h3>Class Management</h3>
+                    <button id="add-class-btn">Add New Class</button>
+                    <div id="class-form-container" class="hidden">
+                        <form id="class-form">
+                            <div class="form-group">
+                                <label for="class-name">Class Name:</label>
+                                <input type="text" id="class-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="class-strength">Class Strength:</label>
+                                <input type="number" id="class-strength" min="1" required>
+                            </div>
+                            <button type="submit">Save Class</button>
+                            <button type="button" id="cancel-class-btn">Cancel</button>
+                        </form>
+                    </div>
+                    <table id="classes-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Class Name</th>
+                                <th>Strength</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classes-list"></tbody>
+                    </table>
+                </div>
+
+                <div id="reports" class="tab-content hidden">
+                    <h3>Attendance Reports</h3>
+                    <div class="form-group">
+                        <label for="report-class">Select Class:</label>
+                        <select id="report-class"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="report-date-from">From Date:</label>
+                        <input type="date" id="report-date-from">
+                    </div>
+                    <div class="form-group">
+                        <label for="report-date-to">To Date:</label>
+                        <input type="date" id="report-date-to">
+                    </div>
+                    <button id="generate-report-btn">Generate Report</button>
+                    <div id="report-result"></div>
+                </div>
+            </div>
+
+            <!-- Faculty Panel -->
+            <div id="faculty-panel" class="hidden">
+                <h2>Faculty Panel</h2>
+                <div class="class-selection">
+                    <label for="class-select">Select Class:</label>
+                    <select id="class-select"></select>
+                    <div class="form-group">
+                        <label for="attendance-date">Date:</label>
+                        <input type="date" id="attendance-date" value="">
+                    </div>
+                </div>
+                <div id="attendance-container">
+                    <h3>Mark Attendance</h3>
+                    <p>Click on student numbers to mark them present:</p>
+                    <div id="attendance-buttons"></div>
+                    <div class="action-buttons">
+                        <button id="mark-all-btn">Mark All Present</button>
+                        <button id="unmark-all-btn">Mark All Absent</button>
+                        <button id="save-attendance-btn">Save Attendance</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
