@@ -456,3 +456,75 @@ tr:hover {
     from { opacity: 1; }
     to { opacity: 0; }
 }
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+input.error {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+  }
+  
+  button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  button .fa-spinner {
+    margin-right: 5px;
+  }
+  
+  form.submitting {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  .toast button {
+    font-size: 0.9rem;
+    padding: 0;
+  }
+
+.badge-admin {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.badge-faculty {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.badge-staff {
+    background-color: var(--dark-gray);
+    color: white;
+}
+input.error {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+  }
+input.error {
+  border-color: var(--danger-color);
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+button .fa-spinner {
+  margin-right: 5px;
+}
+
+form.submitting {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.toast button {
+  font-size: 0.9rem;
+  padding: 0;
+}  
