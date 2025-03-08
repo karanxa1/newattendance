@@ -4,69 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>College Attendance System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>College Attendance System</h1>
-            <div id="user-info">
+            <div class="logo-container">
+                <h1><i class="fas fa-user-graduate"></i> College Attendance System</h1>
+            </div>
+            <div id="user-info" class="hidden">
+                <i class="fas fa-user-circle"></i>
                 <span id="username-display"></span>
                 <span id="role-display"></span>
-                <button id="logout-btn">Logout</button>
+                <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
         </header>
 
         <!-- Login Form -->
-        <div id="login-container" class="auth-container">
-            <h2>Login</h2>
+        <div id="login-container" class="auth-container fade-in">
+            <h2><i class="fas fa-lock"></i> Login</h2>
             <form id="login-form">
                 <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" required>
+                    <label for="username"><i class="fas fa-user"></i> Username:</label>
+                    <input type="text" id="username" required placeholder="Enter your username">
                 </div>
                 <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" required>
+                    <label for="password"><i class="fas fa-key"></i> Password:</label>
+                    <input type="password" id="password" required placeholder="Enter your password">
                 </div>
-                <button type="submit">Login</button>
+                <button type="submit" class="btn-success"><i class="fas fa-sign-in-alt"></i> Login</button>
             </form>
         </div>
 
         <!-- Main Application (hidden until logged in) -->
-        <div id="app-container" class="hidden">
+        <div id="app-container" class="hidden fade-in">
             <!-- Admin Panel -->
             <div id="admin-panel" class="hidden">
-                <h2>Admin Panel</h2>
+                <h2><i class="fas fa-cogs"></i> Admin Panel</h2>
                 <div class="tab-navigation">
-                    <button class="tab-btn active" data-tab="user-management">User Management</button>
-                    <button class="tab-btn" data-tab="class-management">Class Management</button>
-                    <button class="tab-btn" data-tab="reports">Reports</button>
+                    <button class="tab-btn active" data-tab="user-management"><i class="fas fa-users"></i> User Management</button>
+                    <button class="tab-btn" data-tab="class-management"><i class="fas fa-chalkboard"></i> Class Management</button>
+                    <button class="tab-btn" data-tab="reports"><i class="fas fa-chart-bar"></i> Reports</button>
                 </div>
 
-                <div id="user-management" class="tab-content">
-                    <h3>User Management</h3>
-                    <button id="add-user-btn">Add New User</button>
-                    <div id="user-form-container" class="hidden">
+                <div id="user-management" class="tab-content fade-in">
+                    <h3><i class="fas fa-users-cog"></i> User Management</h3>
+                    <button id="add-user-btn" class="btn-success"><i class="fas fa-user-plus"></i> Add New User</button>
+                    <div id="user-form-container" class="hidden fade-in">
                         <form id="user-form">
                             <div class="form-group">
-                                <label for="new-username">Username:</label>
-                                <input type="text" id="new-username" required>
+                                <label for="new-username"><i class="fas fa-user"></i> Username:</label>
+                                <input type="text" id="new-username" required placeholder="Enter username">
                             </div>
                             <div class="form-group">
-                                <label for="new-password">Password:</label>
-                                <input type="password" id="new-password" required>
+                                <label for="new-password"><i class="fas fa-key"></i> Password:</label>
+                                <input type="password" id="new-password" required placeholder="Enter password">
                             </div>
                             <div class="form-group">
-                                <label for="role">Role:</label>
+                                <label for="role"><i class="fas fa-user-tag"></i> Role:</label>
                                 <select id="role" required>
+                                    <option value="">Select a role</option>
                                     <option value="admin">Admin</option>
                                     <option value="faculty">Faculty</option>
                                     <option value="staff">Staff</option>
                                 </select>
                             </div>
-                            <button type="submit">Save User</button>
-                            <button type="button" id="cancel-user-btn">Cancel</button>
+                            <button type="submit" class="btn-success"><i class="fas fa-save"></i> Save User</button>
+                            <button type="button" id="cancel-user-btn" class="btn-danger"><i class="fas fa-times"></i> Cancel</button>
                         </form>
                     </div>
                     <table id="users-table">
@@ -82,21 +87,21 @@
                     </table>
                 </div>
 
-                <div id="class-management" class="tab-content hidden">
-                    <h3>Class Management</h3>
-                    <button id="add-class-btn">Add New Class</button>
-                    <div id="class-form-container" class="hidden">
+                <div id="class-management" class="tab-content hidden fade-in">
+                    <h3><i class="fas fa-chalkboard-teacher"></i> Class Management</h3>
+                    <button id="add-class-btn" class="btn-success"><i class="fas fa-plus-circle"></i> Add New Class</button>
+                    <div id="class-form-container" class="hidden fade-in">
                         <form id="class-form">
                             <div class="form-group">
-                                <label for="class-name">Class Name:</label>
-                                <input type="text" id="class-name" required>
+                                <label for="class-name"><i class="fas fa-chalkboard"></i> Class Name:</label>
+                                <input type="text" id="class-name" required placeholder="Enter class name">
                             </div>
                             <div class="form-group">
-                                <label for="class-strength">Class Strength:</label>
-                                <input type="number" id="class-strength" min="1" required>
+                                <label for="class-strength"><i class="fas fa-users"></i> Class Strength:</label>
+                                <input type="number" id="class-strength" min="1" required placeholder="Number of students">
                             </div>
-                            <button type="submit">Save Class</button>
-                            <button type="button" id="cancel-class-btn">Cancel</button>
+                            <button type="submit" class="btn-success"><i class="fas fa-save"></i> Save Class</button>
+                            <button type="button" id="cancel-class-btn" class="btn-danger"><i class="fas fa-times"></i> Cancel</button>
                         </form>
                     </div>
                     <table id="classes-table">
@@ -112,50 +117,53 @@
                     </table>
                 </div>
 
-                <div id="reports" class="tab-content hidden">
-                    <h3>Attendance Reports</h3>
+                <div id="reports" class="tab-content hidden fade-in">
+                    <h3><i class="fas fa-file-alt"></i> Attendance Reports</h3>
                     <div class="form-group">
-                        <label for="report-class">Select Class:</label>
+                        <label for="report-class"><i class="fas fa-chalkboard"></i> Select Class:</label>
                         <select id="report-class"></select>
                     </div>
                     <div class="form-group">
-                        <label for="report-date-from">From Date:</label>
+                        <label for="report-date-from"><i class="fas fa-calendar-alt"></i> From Date:</label>
                         <input type="date" id="report-date-from">
                     </div>
                     <div class="form-group">
-                        <label for="report-date-to">To Date:</label>
+                        <label for="report-date-to"><i class="fas fa-calendar-alt"></i> To Date:</label>
                         <input type="date" id="report-date-to">
                     </div>
-                    <button id="generate-report-btn">Generate Report</button>
+                    <button id="generate-report-btn" class="btn-success"><i class="fas fa-chart-line"></i> Generate Report</button>
                     <div id="report-result"></div>
                 </div>
             </div>
 
             <!-- Faculty Panel -->
-            <div id="faculty-panel" class="hidden">
-                <h2>Faculty Panel</h2>
+            <div id="faculty-panel" class="hidden fade-in">
+                <h2><i class="fas fa-chalkboard-teacher"></i> Faculty Panel</h2>
                 <div class="class-selection">
-                    <label for="class-select">Select Class:</label>
-                    <select id="class-select"></select>
                     <div class="form-group">
-                        <label for="attendance-date">Date:</label>
+                        <label for="class-select"><i class="fas fa-chalkboard"></i> Select Class:</label>
+                        <select id="class-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="attendance-date"><i class="fas fa-calendar-alt"></i> Date:</label>
                         <input type="date" id="attendance-date" value="">
                     </div>
                 </div>
                 <div id="attendance-container">
-                    <h3>Mark Attendance</h3>
-                    <p>Click on student numbers to mark them present:</p>
+                    <h3><i class="fas fa-clipboard-check"></i> Mark Attendance</h3>
+                    <p><i class="fas fa-info-circle"></i> Click on student cards to mark them present:</p>
                     <div id="attendance-buttons"></div>
                     <div class="action-buttons">
-                        <button id="mark-all-btn">Mark All Present</button>
-                        <button id="unmark-all-btn">Mark All Absent</button>
-                        <button id="save-attendance-btn">Save Attendance</button>
+                        <button id="mark-all-btn"><i class="fas fa-check-circle"></i> Mark All Present</button>
+                        <button id="unmark-all-btn"><i class="fas fa-times-circle"></i> Mark All Absent</button>
+                        <button id="save-attendance-btn" class="btn-success"><i class="fas fa-save"></i> Save Attendance</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="toast-container"></div>
     <script src="script.js"></script>
 </body>
 </html>
