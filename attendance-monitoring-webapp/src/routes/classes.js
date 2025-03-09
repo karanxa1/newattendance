@@ -36,4 +36,5 @@ router.get('/classes/:classId/students', authenticate, authorize([ROLES.ADMIN, R
   }
 });
 
+
 module.exports = router;

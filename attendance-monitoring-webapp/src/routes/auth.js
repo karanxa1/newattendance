@@ -6,8 +6,8 @@ const { secret, options, ROLES } = require('../config/auth');
 
 // Using an array to store users (in a real app, you'd use a database)
 const users = [
-  { id: 1, username: 'admin', password: '$2b$10$examplehashedpassword123', role: ROLES.ADMIN },
-  { id: 2, username: 'faculty1', password: '$2b$10$examplehashedpassword456', role: ROLES.FACULTY }
+  { id: 1, username: 'admin', password: '123456', role: ROLES.ADMIN },
+  { id: 2, username: 'faculty1', password: '123456', role: ROLES.FACULTY }
 ];
 
 router.post('/login', async (req, res) => {
