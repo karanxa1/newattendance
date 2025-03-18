@@ -6,6 +6,7 @@
     <title>College Attendance System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -21,7 +22,6 @@
             </div>
         </header>
 
-        <!-- Login Form -->
         <div id="login-container" class="auth-container fade-in">
             <h2><i class="fas fa-lock"></i> Login</h2>
             <form id="login-form">
@@ -37,15 +37,14 @@
             </form>
         </div>
 
-        <!-- Main Application (hidden until logged in) -->
         <div id="app-container" class="hidden fade-in">
-            <!-- Admin Panel -->
             <div id="admin-panel" class="hidden">
                 <h2><i class="fas fa-cogs"></i> Admin Panel</h2>
                 <div class="tab-navigation">
                     <button class="tab-btn active" data-tab="user-management"><i class="fas fa-users"></i> User Management</button>
                     <button class="tab-btn" data-tab="class-management"><i class="fas fa-chalkboard"></i> Class Management</button>
                     <button class="tab-btn" data-tab="reports"><i class="fas fa-chart-bar"></i> Reports</button>
+                    <button class="tab-btn" data-tab="graph"><i class="fas fa-chart-pie"></i> Attendance Graph</button>
                 </div>
 
                 <div id="user-management" class="tab-content fade-in">
@@ -134,9 +133,17 @@
                     <button id="generate-report-btn" class="btn-success"><i class="fas fa-chart-line"></i> Generate Report</button>
                     <div id="report-result"></div>
                 </div>
+
+                <div id="graph" class="tab-content hidden fade-in">
+                    <h3><i class="fas fa-chart-pie"></i> Attendance Graph</h3>
+                    <div class="form-group">
+                        <label for="graph-class"><i class="fas fa-chalkboard"></i> Select Class:</label>
+                        <select id="graph-class"></select>
+                    </div>
+                    <canvas id="attendanceChart"></canvas>
+                </div>
             </div>
 
-            <!-- Faculty Panel -->
             <div id="faculty-panel" class="hidden fade-in">
                 <h2><i class="fas fa-chalkboard-teacher"></i> Faculty Panel</h2>
                 <div class="class-selection">

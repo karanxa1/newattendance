@@ -1,34 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { secret, options, ROLES } = require('../config/auth');
+const bcrypt = require('bcrypt');
+const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key';
 
-// Using an array to store users (in a real app, you'd use a database)
+// Example user data (replace with database logic)
 const users = [
-  { id: 1, username: 'admin', password: '$2b$10$examplehashedpassword123', role: ROLES.ADMIN },
-  { id: 2, username: 'faculty1', password: '$2b$10$examplehashedpassword456', role: ROLES.FACULTY }
+    { id: 1, username: 'admin', password: bcrypt.hashSync('admin123', 10), role: 'admin' },
+    { id: 2, username: 'faculty', password: bcrypt.hashSync('faculty123', 10), role: 'faculty' }
 ];
 
-router.post('/login', async (req, res) => {
-  try {
+router.post('/login', (req, res) => {
     const { username, password } = req.body;
     const user = users.find(u => u.username === username);
-    
-    // For testing purposes, allow login with any password for predefined users
-    // In production, you should use the bcrypt.compare line instead
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+        return res.status(401).json({ message: 'Invalid credentials' });
     }
-    
-    // Simulate password check for development
-    // In production: if (!user || !(await bcrypt.compare(password, user.password))) {
-    const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, secret, options);
+    const token = jwt.sign({ id: user.id, username, role: user.role }, SECRET_KEY, { expiresIn: '1h' });
     res.json({ token, role: user.role });
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error during login' });
-  }
 });
 
-module.exports = { router, users };
+module.exports = router;

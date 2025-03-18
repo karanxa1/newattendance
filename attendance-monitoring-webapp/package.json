@@ -3,16 +3,18 @@
   "version": "1.0.0",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "start": "node src/routes/server.js",
+    "dev": "nodemon src/routes/server.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.19.2",
+    "firebase": "^10.8.0",
     "googleapis": "^137.1.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "chart.js": "^4.4.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

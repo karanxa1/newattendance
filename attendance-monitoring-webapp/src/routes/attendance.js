@@ -1,54 +1,65 @@
 const express = require('express');
 const router = express.Router();
-const sheets = require('../config/googleSheets');
+const { db } = require('../config/firebaseConfig');
+const { doc, getDoc, updateDoc } = require('firebase/firestore');
 const authenticate = require('../middleware/authenticate');
 const authorize = require('../middleware/authorize');
 const { ROLES } = require('../config/auth');
 
 router.post('/attendance', authenticate, authorize([ROLES.ADMIN, ROLES.FACULTY]), async (req, res) => {
-  try {
-    const { classId, date, presentStudents } = req.body;
-    const spreadsheetId = process.env.SPREADSHEET_ID;
+    try {
+        const { classId, date, presentStudents } = req.body;
+        const classDoc = await getDoc(doc(db, 'classes', classId));
+        if (!classDoc.exists()) {
+            return res.status(404).json({ message: 'Class not found' });
+        }
 
-    const checkResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: `Attendance_${classId}!A:A`,
-    });
-    const dates = checkResponse.data.values || [];
-    let rowIndex = dates.findIndex(row => row[0] === date);
+        const classData = classDoc.data();
+        const attendanceDate = date || new Date().toISOString().split('T')[0];
+        const updatedStudents = classData.students.map(student => {
+            const isPresent = presentStudents.includes(student.id.toString());
+            student.attendance = student.attendance || [];
+            student.attendance.push({
+                date: attendanceDate,
+                status: isPresent ? 'Present' : 'Absent'
+            });
+            return student;
+        });
 
-    const studentsResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: `Class_${classId}!A2:A`,
-    });
-    const students = studentsResponse.data.values || [];
-    const attendanceData = students.map(student => {
-      const studentId = student[0];
-      return presentStudents.includes(studentId) ? 'Present' : 'Absent';
-    });
-    attendanceData.unshift(date);
-
-    if (rowIndex === -1) {
-      await sheets.spreadsheets.values.append({
-        spreadsheetId,
-        range: `Attendance_${classId}!A:Z`,
-        valueInputOption: 'RAW',
-        resource: { values: [attendanceData] }
-      });
-    } else {
-      rowIndex += 1; // Adjust for 1-based index and header
-      await sheets.spreadsheets.values.update({
-        spreadsheetId,
-        range: `Attendance_${classId}!A${rowIndex}:Z${rowIndex}`,
-        valueInputOption: 'RAW',
-        resource: { values: [attendanceData] }
-      });
+        await updateDoc(doc(db, 'classes', classId), { students: updatedStudents });
+        res.json({ message: 'Attendance recorded successfully' });
+    } catch (error) {
+        console.error('Error recording attendance:', error);
+        res.status(500).json({ message: 'Failed to record attendance', error: error.message });
     }
-    res.json({ message: 'Attendance recorded successfully' });
-  } catch (error) {
-    console.error('Error recording attendance:', error);
-    res.status(500).json({ message: 'Failed to record attendance', error: error.message });
-  }
+});
+
+router.get('/attendance/:classId', authenticate, authorize([ROLES.ADMIN, ROLES.FACULTY]), async (req, res) => {
+    try {
+        const { classId } = req.params;
+        const { fromDate, toDate } = req.query;
+        const classDoc = await getDoc(doc(db, 'classes', classId));
+        if (!classDoc.exists()) {
+            return res.status(404).json({ message: 'Class not found' });
+        }
+
+        const classData = classDoc.data();
+        const report = classData.students.map(student => {
+            const attendanceRecords = (student.attendance || []).filter(a => {
+                const recordDate = new Date(a.date).toISOString().split('T')[0];
+                return (!fromDate || recordDate >= fromDate) && (!toDate || recordDate <= toDate);
+            });
+            return {
+                date: attendanceRecords.map(a => a.date),
+                attendance: attendanceRecords.map(a => `${student.name} (${a.status})`)
+            };
+        });
+
+        res.json(report);
+    } catch (error) {
+        console.error('Error generating report:', error);
+        res.status(500).json({ message: 'Failed to generate report', error: error.message });
+    }
 });
 
 module.exports = router;

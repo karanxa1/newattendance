@@ -9,10 +9,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logout-btn');
     const adminPanel = document.getElementById('admin-panel');
     const facultyPanel = document.getElementById('faculty-panel');
+    const graphContainer = document.getElementById('graph');
 
     // Config and global variables
     const API_URL = 'http://localhost:3000/api';
     document.getElementById('attendance-date').valueAsDate = new Date();
+
+    // Add graph controls (date range, update button, export button, chart type toggle)
+    graphContainer.innerHTML += `
+        <div class="graph-controls">
+            <div class="form-group">
+                <label for="graph-date-from"><i class="fas fa-calendar-alt"></i> From Date:</label>
+                <input type="date" id="graph-date-from" value="${new Date().toISOString().split('T')[0]}">
+            </div>
+            <div class="form-group">
+                <label for="graph-date-to"><i class="fas fa-calendar-alt"></i> To Date:</label>
+                <input type="date" id="graph-date-to" value="${new Date().toISOString().split('T')[0]}">
+            </div>
+            <button id="update-graph-btn" class="btn-success"><i class="fas fa-sync"></i> Update Graph</button>
+            <button id="export-graph-btn" class="btn-success" style="margin-left: 10px;"><i class="fas fa-download"></i> Export as PNG</button>
+            <div class="form-group" style="margin-top: 10px;">
+                <label for="chart-type">Chart Type:</label>
+                <select id="chart-type">
+                    <option value="bar">Bar</option>
+                    <option value="line">Line</option>
+                </select>
+            </div>
+        </div>
+    `;
 
     // Check stored authentication
     init();
@@ -20,17 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
     loginForm.addEventListener('submit', handleLogin);
     logoutBtn.addEventListener('click', handleLogout);
-    
-    // Admin event listeners
     document.getElementById('add-user-btn').addEventListener('click', showUserForm);
     document.getElementById('cancel-user-btn').addEventListener('click', hideUserForm);
     document.getElementById('user-form').addEventListener('submit', createUser);
-    
     document.getElementById('add-class-btn').addEventListener('click', showClassForm);
     document.getElementById('cancel-class-btn').addEventListener('click', hideClassForm);
     document.getElementById('class-form').addEventListener('submit', createClass);
-    
     document.getElementById('generate-report-btn').addEventListener('click', generateReport);
+    document.getElementById('graph-class').addEventListener('change', loadAttendanceGraph);
+    document.getElementById('update-graph-btn').addEventListener('click', loadAttendanceGraph);
+    document.getElementById('export-graph-btn').addEventListener('click', exportGraph);
+    document.getElementById('chart-type').addEventListener('change', loadAttendanceGraph);
 
     // Initialize the application
     function init() {
@@ -69,13 +93,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ username, password })
             });
             
-            if (!response.ok) throw new Error('Invalid credentials');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Invalid credentials');
+            }
             
             const data = await response.json();
             localStorage.setItem('token', data.token);
             localStorage.setItem('role', data.role);
             localStorage.setItem('username', username);
-            
             showApp(username, data.role);
             showToast(`Welcome, ${username}!`, 'success');
         } catch (error) {
@@ -199,7 +225,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 throw new Error(`Failed to fetch users: ${response.statusText}`);
             }
-            
+
+            // Check if content-type is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Unexpected response format: Expected JSON');
+            }
+
             const users = await response.json();
             
             if (users.length === 0) {
@@ -211,12 +243,12 @@ document.addEventListener('DOMContentLoaded', () => {
             users.forEach(user => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${user.id}</td>
-                    <td>${user.username}</td>
-                    <td><span class="badge badge-${user.role}">${user.role}</span></td>
+                    <td>${user.id || 'N/A'}</td>
+                    <td>${user.username || 'N/A'}</td>
+                    <td><span class="badge badge-${user.role || 'unknown'}">${user.role || 'Unknown'}</span></td>
                     <td>
-                        <button class="edit-user-btn" data-id="${user.id}"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="delete-user-btn" data-id="${user.id}"><i class="fas fa-trash-alt"></i> Delete</button>
+                        <button class="edit-user-btn" data-id="${user.id || ''}"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="delete-user-btn" data-id="${user.id || ''}"><i class="fas fa-trash-alt"></i> Delete</button>
                     </td>
                 `;
                 
@@ -344,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadClasses(userRole) {
         const classesList = document.getElementById('classes-list');
         if (userRole === 'admin') classesList.innerHTML = '<tr><td colspan="4">Loading classes...</td></tr>';
-        
+
         try {
             const response = await fetch(`${API_URL}/classes`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
@@ -377,14 +409,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     classesList.appendChild(row);
                 });
-                
+
                 const reportClassSelect = document.getElementById('report-class');
+                const graphClassSelect = document.getElementById('graph-class');
                 reportClassSelect.innerHTML = '<option value="">Select a class</option>';
+                graphClassSelect.innerHTML = '<option value="">Select a class</option>';
                 classes.forEach(cls => {
                     const option = document.createElement('option');
                     option.value = cls.id;
                     option.textContent = cls.name;
-                    reportClassSelect.appendChild(option);
+                    reportClassSelect.appendChild(option.cloneNode(true));
+                    graphClassSelect.appendChild(option);
                 });
             } else if (userRole === 'faculty') {
                 const classSelect = document.getElementById('class-select');
@@ -419,55 +454,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function createClass(e) {
         e.preventDefault();
+        const name = document.getElementById('class-name').value.trim();
+        const strength = parseInt(document.getElementById('class-strength').value);
 
-        const form = document.getElementById('class-form');
-        const nameInput = document.getElementById('class-name');
-        const strengthInput = document.getElementById('class-strength');
-        const submitButton = form.querySelector('button[type="submit"]');
-        const name = nameInput.value.trim();
-        const strength = parseInt(strengthInput.value);
-
-        let isValid = true;
-
-        if (!name) {
-            showToast('Class name is required', 'error');
-            nameInput.classList.add('error');
-            nameInput.focus();
-            isValid = false;
-        } else if (name.length > 50) {
-            showToast('Class name must be 50 characters or less', 'error');
-            nameInput.classList.add('error');
-            isValid = false;
-        } else if (!/^[a-zA-Z0-9\s-]+$/.test(name)) {
-            showToast('Class name can only contain letters, numbers, spaces, or hyphens', 'error');
-            nameInput.classList.add('error');
-            isValid = false;
-        } else {
-            nameInput.classList.remove('error');
+        if (!name || isNaN(strength) || strength < 1 || strength > 1000) {
+            showToast('Invalid class name or strength', 'error');
+            return;
         }
-
-        if (isNaN(strength) || strength < 1 || strength > 1000) {
-            showToast('Strength must be a number between 1 and 1000', 'error');
-            strengthInput.classList.add('error');
-            if (isValid) strengthInput.focus();
-            isValid = false;
-        } else {
-            strengthInput.classList.remove('error');
-        }
-
-        if (!isValid) return;
-
-        const originalButtonContent = submitButton.innerHTML;
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-        form.classList.add('submitting');
-        
-        let lastAddedClass = null;
-        let response;
-        let data;
 
         try {
-            response = await fetch(`${API_URL}/admin/classes`, {
+            const response = await fetch(`${API_URL}/admin/classes`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -475,54 +471,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({ name, strength })
             });
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    localStorage.clear();
-                    showLogin();
-                    showToast('Session expired, please log in again', 'error');
-                    return;
-                }
-                throw new Error(`Failed to add class: ${response.statusText}`);
-            }
-
-            data = await response.json();
-            lastAddedClass = { id: data.id, name, strength };
+            
+            if (!response.ok) throw new Error('Failed to create class');
+            
             hideClassForm();
             loadClasses('admin');
-            showToastWithUndo(
-                `Class "${name}" added successfully with ${strength} students`,
-                'success',
-                async () => await undoClassCreation(lastAddedClass.id)
-            );
-            form.reset();
+            showToast('Class created successfully', 'success');
         } catch (error) {
-            const statusCode = response?.status || 'Unknown';
-            showToast(`Error adding class: ${error.message}`, 'error');
-            console.error('Class creation failed:', {
-                message: error.message,
-                status: statusCode,
-                responseData: data || 'No response data',
-                request: { name, strength },
-                timestamp: new Date().toISOString()
-            });
-        } finally {
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonContent;
-            form.classList.remove('submitting');
-        }
-    }
-
-    async function undoClassCreation(classId) {
-        try {
-            const response = await fetch(`${API_URL}/admin/classes/${classId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            if (!response.ok) throw new Error('Failed to undo class creation');
-        } catch (error) {
-            showToast(`Error undoing class creation: ${error.message}`, 'error');
-            console.error('Undo error:', error);
+            showToast(`Error creating class: ${error.message}`, 'error');
+            console.error('Error creating class:', error);
         }
     }
 
@@ -624,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Report functions
+    // Report function
     async function generateReport() {
         const classId = document.getElementById('report-class').value;
         const fromDate = document.getElementById('report-date-from').value;
@@ -639,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultDiv.innerHTML = 'Generating report...';
         
         try {
-            const response = await fetch(`${API_URL}/admin/attendance/${classId}?fromDate=${fromDate}&toDate=${toDate}`, {
+            const response = await fetch(`${API_URL}/attendance/${classId}?fromDate=${fromDate}&toDate=${toDate}`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             
@@ -658,7 +615,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const table = document.createElement('table');
             table.innerHTML = `
                 <thead><tr><th>Date</th><th>Attendance</th></tr></thead>
-                <tbody>${data.map(row => `<tr><td>${row.date}</td><td>${row.attendance.join(', ')}</td></tr>`).join('')}</tbody>
+                <tbody>${data.map(row => row.date.map((date, index) => `
+                    <tr><td>${date}</td><td>${row.attendance[index] || 'N/A'}</td></tr>
+                `).join('')).join('')}</tbody>
             `;
             resultDiv.appendChild(table);
             showToast('Report generated successfully', 'success');
@@ -669,7 +628,153 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Placeholder for token refresh (to be implemented server-side)
+    // Improved attendance graph function with height limit
+    async function loadAttendanceGraph() {
+        const classId = document.getElementById('graph-class').value;
+        const fromDate = document.getElementById('graph-date-from').value;
+        const toDate = document.getElementById('graph-date-to').value;
+        const chartType = document.getElementById('chart-type').value;
+        const canvas = document.getElementById('attendanceChart');
+        const ctx = canvas.getContext('2d');
+
+        if (!classId) {
+            canvas.style.display = 'none';
+            return;
+        }
+
+        // Show loading state
+        canvas.style.display = 'block';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#333';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Loading...', canvas.width / 2, canvas.height / 2);
+
+        try {
+            const response = await fetch(`${API_URL}/attendance/${classId}?fromDate=${fromDate || ''}&toDate=${toDate || ''}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (!response.ok) throw new Error('Failed to fetch attendance data');
+
+            const data = await response.json();
+            if (!data || data.length === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillText('No attendance data available', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+
+            // Aggregate attendance data with date validation
+            const studentsData = data.map(student => {
+                const attendanceRecords = student.attendance || [];
+                const filteredRecords = attendanceRecords.filter(record => {
+                    const recordDate = record.date ? new Date(record.date).toISOString().split('T')[0] : '';
+                    const isValidFrom = !fromDate || recordDate >= fromDate;
+                    const isValidTo = !toDate || recordDate <= toDate;
+                    return recordDate && isValidFrom && isValidTo;
+                });
+                const presentCount = filteredRecords.filter(r => r.status === 'Present').length;
+                const absentCount = filteredRecords.filter(r => r.status === 'Absent').length;
+                return {
+                    name: student.name || `Student ${student.id}`,
+                    presentCount,
+                    absentCount,
+                    details: filteredRecords.map(r => `${r.date}: ${r.status}`).join('\n') || 'No records'
+                };
+            });
+
+            // Destroy existing chart if it exists
+            if (window.attendanceChart instanceof Chart) {
+                window.attendanceChart.destroy();
+            }
+
+            // Calculate dynamic height with a maximum limit
+            const maxHeight = 800; // Maximum height in pixels
+            const baseHeight = 300; // Minimum height
+            const itemHeight = 50; // Height per student
+            const dynamicHeight = Math.min(maxHeight, baseHeight + Math.min(studentsData.length, 10) * itemHeight); // Limit to 10 students for height
+
+            // Create new chart
+            window.attendanceChart = new Chart(ctx, {
+                type: chartType,
+                data: {
+                    labels: studentsData.map(s => s.name),
+                    datasets: [
+                        {
+                            label: 'Present',
+                            data: studentsData.map(s => s.presentCount),
+                            backgroundColor: '#2ecc71',
+                            stack: 'Stack 0',
+                            borderWidth: 1,
+                            borderColor: '#27ae60'
+                        },
+                        {
+                            label: 'Absent',
+                            data: studentsData.map(s => s.absentCount),
+                            backgroundColor: '#e74c3c',
+                            stack: 'Stack 0',
+                            borderWidth: 1,
+                            borderColor: '#c0392b'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    aspectRatio: 2, // Adjust aspect ratio to control width-to-height proportion
+                    scales: {
+                        x: { stacked: true },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: { display: true, text: 'Count' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const student = studentsData[context.dataIndex];
+                                    return [
+                                        `${context.dataset.label}: ${context.raw}`,
+                                        `Details: ${student.details}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    height: dynamicHeight // Set initial height
+                }
+            });
+
+            // Set canvas height after chart creation to ensure proper rendering
+            canvas.height = dynamicHeight;
+            canvas.style.height = `${dynamicHeight}px`; // Ensure CSS height matches
+            showToast('Graph updated successfully', 'success');
+        } catch (error) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillText('Error loading graph', canvas.width / 2, canvas.height / 2);
+            showToast(`Error loading graph: ${error.message}`, 'error');
+            console.error('Error loading graph:', error);
+        }
+    }
+
+    // Export graph as PNG
+    function exportGraph() {
+        if (window.attendanceChart) {
+            const link = document.createElement('a');
+            link.download = `attendance_graph_${new Date().toISOString().split('T')[0]}.png`;
+            link.href = document.getElementById('attendanceChart').toDataURL('image/png');
+            link.click();
+            showToast('Graph exported successfully', 'success');
+        } else {
+            showToast('No graph to export', 'error');
+        }
+    }
+
+    // Placeholder for token refresh
     async function refreshToken() {
         try {
             const response = await fetch(`${API_URL}/refresh-token`, {
