@@ -37,9 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('token');
         const role = localStorage.getItem('role');
         const username = localStorage.getItem('username');
-        if (token && role && username) showApp(username, role);
-
-        // Setup tab navigation for admin panel
+        if (!token || !role || !username) {
+            showLogin();
+            showToast('No valid session found, please log in', 'error');
+            return;
+        }
+        showApp(username, role);
         setupTabNavigation();
     }
 
@@ -77,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast(`Welcome, ${username}!`, 'success');
         } catch (error) {
             showToast(`Login failed: ${error.message}`, 'error');
+            console.error('Login error:', error);
         }
     }
 
@@ -186,7 +190,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             
-            if (!response.ok) throw new Error('Failed to fetch users');
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.clear();
+                    showLogin();
+                    showToast('Session expired, please log in again', 'error');
+                    return;
+                }
+                throw new Error(`Failed to fetch users: ${response.statusText}`);
+            }
             
             const users = await response.json();
             
@@ -216,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             usersList.innerHTML = '<tr><td colspan="4">Error loading users</td></tr>';
             console.error('Error loading users:', error);
-            showToast('Error loading users', 'error');
+            showToast(`Error loading users: ${error.message}`, 'error');
         }
     }
 
@@ -338,7 +350,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             
-            if (!response.ok) throw new Error('Failed to fetch classes');
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.clear();
+                    showLogin();
+                    showToast('Session expired, please log in again', 'error');
+                    return;
+                }
+                throw new Error(`Failed to fetch classes: ${response.statusText}`);
+            }
             
             const classes = await response.json();
             
@@ -384,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             if (userRole === 'admin') classesList.innerHTML = '<tr><td colspan="4">Error loading classes</td></tr>';
             console.error('Error loading classes:', error);
-            showToast('Error loading classes', 'error');
+            showToast(`Error loading classes: ${error.message}`, 'error');
         }
     }
 
@@ -400,7 +420,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function createClass(e) {
         e.preventDefault();
 
-        // DOM elements
         const form = document.getElementById('class-form');
         const nameInput = document.getElementById('class-name');
         const strengthInput = document.getElementById('class-strength');
@@ -408,7 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = nameInput.value.trim();
         const strength = parseInt(strengthInput.value);
 
-        // Validation with immediate feedback
         let isValid = true;
 
         if (!name) {
@@ -439,7 +457,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!isValid) return;
 
-        // Lock form and show progress
         const originalButtonContent = submitButton.innerHTML;
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
@@ -450,7 +467,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let data;
 
         try {
-            // Make API request
             response = await fetch(`${API_URL}/admin/classes`, {
                 method: 'POST',
                 headers: {
@@ -460,16 +476,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ name, strength })
             });
 
-            // Parse response
-            data = await response.json();
-
-            // Check for errors
             if (!response.ok) {
-                const errorMsg = data.message || 'Failed to add class';
-                throw new Error(`${errorMsg}${data.details ? ` - ${data.details}` : ''}`);
+                if (response.status === 401) {
+                    localStorage.clear();
+                    showLogin();
+                    showToast('Session expired, please log in again', 'error');
+                    return;
+                }
+                throw new Error(`Failed to add class: ${response.statusText}`);
             }
 
-            // Success handling
+            data = await response.json();
             lastAddedClass = { id: data.id, name, strength };
             hideClassForm();
             loadClasses('admin');
@@ -480,7 +497,6 @@ document.addEventListener('DOMContentLoaded', () => {
             );
             form.reset();
         } catch (error) {
-            // Enhanced error handling
             const statusCode = response?.status || 'Unknown';
             showToast(`Error adding class: ${error.message}`, 'error');
             console.error('Class creation failed:', {
@@ -491,14 +507,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: new Date().toISOString()
             });
         } finally {
-            // Reset form state
             submitButton.disabled = false;
             submitButton.innerHTML = originalButtonContent;
             form.classList.remove('submitting');
         }
     }
 
-    // Undo class creation
     async function undoClassCreation(classId) {
         try {
             const response = await fetch(`${API_URL}/admin/classes/${classId}`, {
@@ -522,7 +536,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             
-            if (!response.ok) throw new Error('Failed to fetch students');
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.clear();
+                    showLogin();
+                    showToast('Session expired, please log in again', 'error');
+                    return;
+                }
+                throw new Error(`Failed to fetch students: ${response.statusText}`);
+            }
             
             const students = await response.json();
             attendanceButtons.innerHTML = '';
@@ -559,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             attendanceButtons.innerHTML = 'Error loading students';
             console.error('Error loading students:', error);
-            showToast('Error loading students', 'error');
+            showToast(`Error loading students: ${error.message}`, 'error');
         }
     }
 
@@ -585,7 +607,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ classId, date, presentStudents })
             });
             
-            if (!response.ok) throw new Error('Failed to save attendance');
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.clear();
+                    showLogin();
+                    showToast('Session expired, please log in again', 'error');
+                    return;
+                }
+                throw new Error(`Failed to save attendance: ${response.statusText}`);
+            }
             
             showToast('Attendance saved successfully', 'success');
         } catch (error) {
@@ -613,7 +643,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             
-            if (!response.ok) throw new Error('Failed to generate report');
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.clear();
+                    showLogin();
+                    showToast('Session expired, please log in again', 'error');
+                    return;
+                }
+                throw new Error(`Failed to generate report: ${response.statusText}`);
+            }
             
             const data = await response.json();
             resultDiv.innerHTML = '<h4>Attendance Report</h4>';
@@ -628,6 +666,24 @@ document.addEventListener('DOMContentLoaded', () => {
             resultDiv.innerHTML = 'Error generating report';
             showToast(`Error generating report: ${error.message}`, 'error');
             console.error('Error generating report:', error);
+        }
+    }
+
+    // Placeholder for token refresh (to be implemented server-side)
+    async function refreshToken() {
+        try {
+            const response = await fetch(`${API_URL}/refresh-token`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: localStorage.getItem('token') })
+            });
+            if (!response.ok) throw new Error('Failed to refresh token');
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            return data.token;
+        } catch (error) {
+            console.error('Token refresh failed:', error);
+            throw error;
         }
     }
 });
