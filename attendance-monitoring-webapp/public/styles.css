@@ -817,3 +817,200 @@ form.submitting {
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--medium-gray);
 }
+/* Default Light Mode Styles */
+body {
+    background-color: #f4f4f4;
+    color: #333;
+    font-family: Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #333;
+}
+
+.container {
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+.tab-btn {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.tab-btn.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+table {
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    color: #333;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.btn-dark-mode {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-dark-mode:hover {
+    background-color: #0056b3;
+}
+
+.student-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.student-btn.present {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.toast {
+    background-color: #333;
+    color: #fff;
+}
+
+.toast-success {
+    background-color: #28a745;
+}
+
+.toast-error {
+    background-color: #dc3545;
+}
+
+.badge-admin {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.badge-faculty {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.form-group label {
+    color: #333;
+}
+
+input, select {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+    color: #e0e0e0;
+}
+
+body.dark-mode .container {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+}
+
+body.dark-mode .tab-btn {
+    background-color: #444;
+    color: #e0e0e0;
+}
+
+body.dark-mode .tab-btn.active {
+    background-color: #0056b3;
+    color: #fff;
+}
+
+body.dark-mode table {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+}
+
+body.dark-mode table th,
+body.dark-mode table td {
+    border: 1px solid #444;
+    color: #e0e0e0;
+}
+
+body.dark-mode .btn-success {
+    background-color: #218838;
+    color: #fff;
+}
+
+body.dark-mode .btn-dark-mode {
+    background-color: #0056b3;
+    color: #fff;
+}
+
+body.dark-mode .btn-dark-mode:hover {
+    background-color: #003d82;
+}
+
+body.dark-mode .student-btn {
+    background-color: #444;
+    color: #e0e0e0;
+    border: 1px solid #555;
+}
+
+body.dark-mode .student-btn.present {
+    background-color: #218838;
+    color: #fff;
+}
+
+body.dark-mode .toast {
+    background-color: #444;
+    color: #e0e0e0;
+}
+
+body.dark-mode .toast-success {
+    background-color: #218838;
+}
+
+body.dark-mode .toast-error {
+    background-color: #c82333;
+}
+
+body.dark-mode .badge-admin {
+    background-color: #0056b3;
+    color: #fff;
+}
+
+body.dark-mode .badge-faculty {
+    background-color: #218838;
+    color: #fff;
+}
+
+body.dark-mode .form-group label {
+    color: #e0e0e0;
+}
+
+body.dark-mode input,
+body.dark-mode select {
+    background-color: #333;
+    color: #e0e0e0;
+    border: 1px solid #555;
+}

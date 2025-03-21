@@ -38,7 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     `;
 
-    // Check stored authentication
+    // Add dark mode toggle button to user-info section
+    userInfo.innerHTML += `
+        <button id="dark-mode-toggle" class="btn btn-dark-mode" style="margin-left: 10px;">
+            <i class="fas fa-moon"></i> Toggle Dark Mode
+        </button>
+    `;
+
+    // Check stored authentication and dark mode preference
     init();
 
     // Event listeners
@@ -55,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('update-graph-btn').addEventListener('click', loadAttendanceGraph);
     document.getElementById('export-graph-btn').addEventListener('click', exportGraph);
     document.getElementById('chart-type').addEventListener('change', loadAttendanceGraph);
+    document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
 
     // Initialize the application
     function init() {
@@ -68,6 +76,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         showApp(username, role);
         setupTabNavigation();
+        // Apply dark mode preference on load
+        const darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+            document.getElementById('dark-mode-toggle').innerHTML = '<i class="fas fa-sun"></i> Toggle Light Mode';
+        }
+    }
+
+    // Dark mode toggle function
+    function toggleDarkMode() {
+        const isDarkMode = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode);
+        const toggleButton = document.getElementById('dark-mode-toggle');
+        toggleButton.innerHTML = isDarkMode
+            ? '<i class="fas fa-sun"></i> Toggle Light Mode'
+            : '<i class="fas fa-moon"></i> Toggle Dark Mode';
+        showToast(`Switched to ${isDarkMode ? 'Dark' : 'Light'} Mode`, 'success');
     }
 
     // Authentication functions
@@ -279,17 +304,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('new-username').value.trim();
         const password = document.getElementById('new-password').value;
         const role = document.getElementById('role').value;
-        
+
+        // Input validation
         if (!username || !role) {
             showToast('Please fill in all required fields', 'error');
             return;
         }
-        
+
         if (password && password.length < 6) {
             showToast('Password must be at least 6 characters', 'error');
             return;
         }
-        
+
+        // Log the request data for debugging
+        console.log('Creating user with data:', { username, password, role });
+
         try {
             const response = await fetch(`${API_URL}/admin/users`, {
                 method: 'POST',
@@ -299,15 +328,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({ username, password, role })
             });
-            
-            if (!response.ok) throw new Error('Failed to create user');
-            
+
+            // Log the raw response for debugging
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers.get('content-type'));
+
+            // Check if the response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('Non-JSON response:', text);
+                throw new Error('Unexpected response format: Expected JSON');
+            }
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to create user');
+            }
+
             hideUserForm();
             loadUsers();
             showToast('User created successfully', 'success');
         } catch (error) {
-            showToast(`Error creating user: ${error.message}`, 'error');
             console.error('Error creating user:', error);
+            showToast(`Error creating user: ${error.message}`, 'error');
         }
     }
 
@@ -695,7 +740,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemHeight = 50; // Height per student
             const dynamicHeight = Math.min(maxHeight, baseHeight + Math.min(studentsData.length, 10) * itemHeight); // Limit to 10 students for height
 
-            // Create new chart
+            // Create new chart with dynamic colors based on dark mode
+            const isDarkMode = document.body.classList.contains('dark-mode');
             window.attendanceChart = new Chart(ctx, {
                 type: chartType,
                 data: {
@@ -722,17 +768,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    aspectRatio: 2, // Adjust aspect ratio to control width-to-height proportion
+                    aspectRatio: 2,
                     scales: {
-                        x: { stacked: true },
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                color: isDarkMode ? '#e0e0e0' : '#333'
+                            },
+                            grid: {
+                                color: isDarkMode ? '#444' : '#ddd'
+                            }
+                        },
                         y: {
                             stacked: true,
                             beginAtZero: true,
-                            title: { display: true, text: 'Count' }
+                            title: { display: true, text: 'Count', color: isDarkMode ? '#e0e0e0' : '#333' },
+                            ticks: {
+                                color: isDarkMode ? '#e0e0e0' : '#333'
+                            },
+                            grid: {
+                                color: isDarkMode ? '#444' : '#ddd'
+                            }
                         }
                     },
                     plugins: {
-                        legend: { position: 'top' },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: isDarkMode ? '#e0e0e0' : '#333'
+                            }
+                        },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -742,16 +807,21 @@ document.addEventListener('DOMContentLoaded', () => {
                                         `Details: ${student.details}`
                                     ];
                                 }
-                            }
+                            },
+                            backgroundColor: isDarkMode ? '#333' : '#fff',
+                            titleColor: isDarkMode ? '#e0e0e0' : '#333',
+                            bodyColor: isDarkMode ? '#e0e0e0' : '#333',
+                            borderColor: isDarkMode ? '#555' : '#ccc',
+                            borderWidth: 1
                         }
                     },
-                    height: dynamicHeight // Set initial height
+                    height: dynamicHeight
                 }
             });
 
             // Set canvas height after chart creation to ensure proper rendering
             canvas.height = dynamicHeight;
-            canvas.style.height = `${dynamicHeight}px`; // Ensure CSS height matches
+            canvas.style.height = `${dynamicHeight}px`;
             showToast('Graph updated successfully', 'success');
         } catch (error) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
