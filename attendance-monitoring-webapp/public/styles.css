@@ -793,6 +793,74 @@ form.submitting {
 .skip-link:focus {
     top: 0;
 }
+/* Dark Mode Toggle Button Styles */
+.dark-mode-container {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.dark-mode-toggle-label {
+    height: 30px;
+    width: 60px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    -webkit-box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
+    inset 0 0 20px 1px rgba(0, 0, 0, 0.488), 5px 10px 15px rgba(0, 0, 0, 0.096),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
+    inset 0 0 20px 1px rgba(0, 0, 0, 0.488), 5px 10px 15px rgba(0, 0, 0, 0.096),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.4s;
+}
+
+.dark-mode-toggle-label:hover {
+    -webkit-transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+    transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+}
+
+#dark-mode-checkbox:checked ~ .dark-mode-toggle-label:hover {
+    -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+    transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#dark-mode-checkbox {
+    display: none;
+}
+
+#dark-mode-checkbox:checked ~ .dark-mode-toggle-label::before {
+    left: 35px;
+    background-color: #000000;
+    background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+.dark-mode-toggle-label::before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background-color: #000000;
+    background-image: linear-gradient(
+        130deg,
+        #757272 10%,
+        #ffffff 11%,
+        #726f6f 62%
+    );
+    left: 5px;
+    -webkit-box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3),
+    5px 5px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3), 5px 5px 5px rgba(0, 0, 0, 0.3);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
 /* Add or update these styles */
 
 /* Ensure the graph container has a maximum height and handles overflow */

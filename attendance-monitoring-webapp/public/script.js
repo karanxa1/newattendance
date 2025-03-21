@@ -42,12 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     `;
 
-    // Add dark mode toggle button to user-info section
-    userInfo.innerHTML += `
-        <button id="dark-mode-toggle" class="btn btn-dark-mode" style="margin-left: 10px;">
-            <i class="fas fa-moon"></i> Toggle Dark Mode
-        </button>
-    `;
+    // Dark mode toggle is now added directly in the HTML
 
     // Check stored authentication and dark mode preference
     init();
@@ -85,7 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) {
             document.body.classList.add('dark-mode');
-            document.getElementById('dark-mode-toggle').innerHTML = '<i class="fas fa-sun"></i> Toggle Light Mode';
+            const darkModeCheckbox = document.getElementById('dark-mode-checkbox');
+            if (darkModeCheckbox) {
+                darkModeCheckbox.checked = true;
+            }
         }
     }
 
@@ -93,10 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleDarkMode() {
         const isDarkMode = document.body.classList.toggle('dark-mode');
         localStorage.setItem('darkMode', isDarkMode);
-        const toggleButton = document.getElementById('dark-mode-toggle');
-        toggleButton.innerHTML = isDarkMode
-            ? '<i class="fas fa-sun"></i> Toggle Light Mode'
-            : '<i class="fas fa-moon"></i> Toggle Dark Mode';
+        const darkModeCheckbox = document.getElementById('dark-mode-checkbox');
+        darkModeCheckbox.checked = isDarkMode;
         showToast(`Switched to ${isDarkMode ? 'Dark' : 'Light'} Mode`, 'success');
     }
 
