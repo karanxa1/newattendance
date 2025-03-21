@@ -13,7 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Config and global variables
     const API_URL = 'http://localhost:3000/api';
-    document.getElementById('attendance-date').valueAsDate = new Date();
+    // Add null check before setting date value
+    const attendanceDateField = document.getElementById('attendance-date');
+    if (attendanceDateField) {
+        attendanceDateField.valueAsDate = new Date();
+    }
 
     // Add graph controls (date range, update button, export button, chart type toggle)
     graphContainer.innerHTML += `
@@ -58,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cancel-class-btn').addEventListener('click', hideClassForm);
     document.getElementById('class-form').addEventListener('submit', createClass);
     document.getElementById('generate-report-btn').addEventListener('click', generateReport);
+    document.getElementById('export-sheets-btn').addEventListener('click', exportToGoogleSheets);
     document.getElementById('graph-class').addEventListener('change', loadAttendanceGraph);
     document.getElementById('update-graph-btn').addEventListener('click', loadAttendanceGraph);
     document.getElementById('export-graph-btn').addEventListener('click', exportGraph);
@@ -626,6 +631,68 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Export to Google Sheets function
+    async function exportToGoogleSheets() {
+        const classId = document.getElementById('report-class').value;
+        const fromDate = document.getElementById('report-date-from').value;
+        const toDate = document.getElementById('report-date-to').value;
+        const sheetName = 'Attendance Data';
+        // Use the specific Google Sheet ID provided by the user
+        const spreadsheetId = '1zEqCh3q9u7mNFu6MMAUMqt4aROLTCvEAZZtC2lPgzIA';
+        
+        if (!classId || !fromDate || !toDate) {
+            showToast('Please select class and date range', 'error');
+            return;
+        }
+        
+        const resultDiv = document.getElementById('report-result');
+        resultDiv.innerHTML = 'Exporting to Google Sheets...';
+        
+        try {
+            // Get user email from localStorage or prompt the user
+            let email = localStorage.getItem('email');
+            if (!email) {
+                email = prompt('Please enter your email address to share the Google Sheet with you:', '');
+                if (email) {
+                    localStorage.setItem('email', email);
+                }
+            }
+            
+            const response = await fetch(`${API_URL}/export-to-sheets`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ classId, fromDate, toDate, sheetName, email, spreadsheetId })
+            });
+            
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.clear();
+                    showLogin();
+                    showToast('Session expired, please log in again', 'error');
+                    return;
+                }
+                throw new Error(`Failed to export to Google Sheets: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            resultDiv.innerHTML = `
+                <h4>Export Successful</h4>
+                <p>Your attendance data has been exported to Google Sheets.</p>
+                <p><a href="${data.spreadsheetUrl}" target="_blank" class="btn-primary">
+                    <i class="fas fa-external-link-alt"></i> Open Spreadsheet
+                </a></p>
+            `;
+            showToast('Exported to Google Sheets successfully', 'success');
+        } catch (error) {
+            resultDiv.innerHTML = 'Error exporting to Google Sheets';
+            showToast(`Error exporting to Google Sheets: ${error.message}`, 'error');
+            console.error('Error exporting to Google Sheets:', error);
+        }
+    }
+    
     // Report function
     async function generateReport() {
         const classId = document.getElementById('report-class').value;
@@ -658,12 +725,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             resultDiv.innerHTML = '<h4>Attendance Report</h4>';
             const table = document.createElement('table');
-            table.innerHTML = `
-                <thead><tr><th>Date</th><th>Attendance</th></tr></thead>
-                <tbody>${data.map(row => row.date.map((date, index) => `
-                    <tr><td>${date}</td><td>${row.attendance[index] || 'N/A'}</td></tr>
-                `).join('')).join('')}</tbody>
-            `;
+            
+            // Check the structure of the data and handle it accordingly
+            if (data && data.length > 0) {
+                // Create table header
+                let tableHTML = '<thead><tr><th>Date</th><th>Attendance</th></tr></thead><tbody>';
+                
+                // Process data based on its structure
+                if (Array.isArray(data[0].date)) {
+                    // Handle case where date is an array
+                    tableHTML += data.map(row => 
+                        row.date.map((date, index) => 
+                            `<tr><td>${date}</td><td>${row.attendance && row.attendance[index] || 'N/A'}</td></tr>`
+                        ).join('')
+                    ).join('');
+                } else if (typeof data[0] === 'object') {
+                    // Handle case where each item is a record with date and status
+                    tableHTML += data.map(row => 
+                        `<tr><td>${row.date || 'Unknown'}</td><td>${row.status || row.attendance || 'N/A'}</td></tr>`
+                    ).join('');
+                }
+                
+                tableHTML += '</tbody>';
+                table.innerHTML = tableHTML;
+            } else {
+                table.innerHTML = '<thead><tr><th>Date</th><th>Attendance</th></tr></thead><tbody><tr><td colspan="2">No data available</td></tr></tbody>';
+            }
             resultDiv.appendChild(table);
             showToast('Report generated successfully', 'success');
         } catch (error) {
@@ -710,24 +797,84 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Aggregate attendance data with date validation
-            const studentsData = data.map(student => {
-                const attendanceRecords = student.attendance || [];
-                const filteredRecords = attendanceRecords.filter(record => {
-                    const recordDate = record.date ? new Date(record.date).toISOString().split('T')[0] : '';
-                    const isValidFrom = !fromDate || recordDate >= fromDate;
-                    const isValidTo = !toDate || recordDate <= toDate;
-                    return recordDate && isValidFrom && isValidTo;
-                });
-                const presentCount = filteredRecords.filter(r => r.status === 'Present').length;
-                const absentCount = filteredRecords.filter(r => r.status === 'Absent').length;
-                return {
-                    name: student.name || `Student ${student.id}`,
-                    presentCount,
-                    absentCount,
-                    details: filteredRecords.map(r => `${r.date}: ${r.status}`).join('\n') || 'No records'
-                };
-            });
+            // Determine data structure and process accordingly
+            let studentsData = [];
+            
+            try {
+                // Check if data is an array of students with attendance records
+                if (Array.isArray(data) && data[0] && (data[0].attendance || data[0].students)) {
+                    // Case 1: Each item represents a student with attendance records
+                    studentsData = data.map(student => {
+                        // Handle different possible data structures
+                        const attendanceRecords = student.attendance || student.records || [];
+                        const filteredRecords = attendanceRecords.filter(record => {
+                            // Safely extract date from record
+                            const recordDate = record && record.date ? 
+                                new Date(record.date).toISOString().split('T')[0] : '';
+                            const isValidFrom = !fromDate || recordDate >= fromDate;
+                            const isValidTo = !toDate || recordDate <= toDate;
+                            return recordDate && isValidFrom && isValidTo;
+                        });
+                        
+                        // Count present/absent based on status field
+                        const presentCount = filteredRecords.filter(r => 
+                            r.status === 'Present' || r.status === 'present' || r.present === true).length;
+                        const absentCount = filteredRecords.filter(r => 
+                            r.status === 'Absent' || r.status === 'absent' || r.present === false).length;
+                            
+                        return {
+                            name: student.name || `Student ${student.id || 'Unknown'}`,
+                            presentCount,
+                            absentCount,
+                            details: filteredRecords.map(r => 
+                                `${r.date || 'Unknown date'}: ${r.status || (r.present ? 'Present' : 'Absent')}`
+                            ).join('\n') || 'No records'
+                        };
+                    });
+                } else if (Array.isArray(data) && data[0] && data[0].date) {
+                    // Case 2: Each item is a date-based record
+                    // Group by student if possible, otherwise create a single aggregate entry
+                    const aggregateData = {
+                        present: 0,
+                        absent: 0,
+                        details: []
+                    };
+                    
+                    data.forEach(record => {
+                        const recordDate = record.date ? new Date(record.date).toISOString().split('T')[0] : 'Unknown';
+                        const isValidFrom = !fromDate || recordDate >= fromDate;
+                        const isValidTo = !toDate || recordDate <= toDate;
+                        
+                        if (isValidFrom && isValidTo) {
+                            if (record.status === 'Present' || record.present === true) {
+                                aggregateData.present++;
+                            } else {
+                                aggregateData.absent++;
+                            }
+                            aggregateData.details.push(`${recordDate}: ${record.status || (record.present ? 'Present' : 'Absent')}`);
+                        }
+                    });
+                    
+                    studentsData = [{
+                        name: 'Attendance Summary',
+                        presentCount: aggregateData.present,
+                        absentCount: aggregateData.absent,
+                        details: aggregateData.details.join('\n') || 'No records'
+                    }];
+                } else {
+                    // Fallback for unexpected data structure
+                    throw new Error('Unexpected data format');
+                }
+            } catch (error) {
+                console.error('Error processing attendance data:', error);
+                // Create a fallback data point to avoid chart errors
+                studentsData = [{
+                    name: 'Error in data',
+                    presentCount: 0,
+                    absentCount: 0,
+                    details: 'Could not process attendance data'
+                }];
+            }
 
             // Destroy existing chart if it exists
             if (window.attendanceChart instanceof Chart) {
@@ -831,16 +978,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Export graph as PNG
+    // Export graph as PNG with improved error handling
     function exportGraph() {
-        if (window.attendanceChart) {
-            const link = document.createElement('a');
-            link.download = `attendance_graph_${new Date().toISOString().split('T')[0]}.png`;
-            link.href = document.getElementById('attendanceChart').toDataURL('image/png');
-            link.click();
-            showToast('Graph exported successfully', 'success');
-        } else {
-            showToast('No graph to export', 'error');
+        try {
+            const canvas = document.getElementById('attendanceChart');
+            if (!canvas) {
+                showToast('Canvas element not found', 'error');
+                return;
+            }
+            
+            if (window.attendanceChart && typeof window.attendanceChart !== 'undefined') {
+                const link = document.createElement('a');
+                link.download = `attendance_graph_${new Date().toISOString().split('T')[0]}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast('Graph exported successfully', 'success');
+            } else {
+                showToast('No graph data available to export', 'error');
+            }
+        } catch (error) {
+            console.error('Error exporting graph:', error);
+            showToast(`Failed to export graph: ${error.message}`, 'error');
         }
     }
 

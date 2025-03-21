@@ -1,3 +1,6 @@
+// Load environment variables from .env file
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -6,6 +9,7 @@ const attendanceRouter = require('./attendance');
 const classesRouter = require('./classes');
 const graphRouter = require('./graph');
 const authRouter = require('./auth');
+const sheetsRouter = require('./sheets');
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -23,6 +27,7 @@ app.use('/api', attendanceRouter);
 app.use('/api', classesRouter);
 app.use('/api', graphRouter);
 app.use('/api', authRouter);
+app.use('/api', sheetsRouter);
 
 // Fallback to serve index.html for SPA, but only for non-API routes
 app.get('*', (req, res) => {

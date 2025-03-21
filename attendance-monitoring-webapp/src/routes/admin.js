@@ -7,7 +7,7 @@ const authorize = require('../middleware/authorize');
 const { ROLES } = require('../config/auth');
 
 // Load all users (using Firestore)
-router.get('/users', authenticate, authorize([ROLES.ADMIN]), async (req, res) => {
+router.get('/admin/users', authenticate, authorize([ROLES.ADMIN]), async (req, res) => {
     try {
         const usersSnapshot = await getDocs(collection(db, 'users')); // Assuming a 'users' collection
         const users = usersSnapshot.docs.map(doc => ({
@@ -22,7 +22,7 @@ router.get('/users', authenticate, authorize([ROLES.ADMIN]), async (req, res) =>
 });
 
 // Create a new user
-router.post('/users', authenticate, authorize([ROLES.ADMIN]), async (req, res) => {
+router.post('/admin/users', authenticate, authorize([ROLES.ADMIN]), async (req, res) => {
     try {
         const { username, password, role } = req.body;
         if (!username || !role) {

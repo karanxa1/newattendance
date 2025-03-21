@@ -438,6 +438,16 @@ tr:hover {
     background-color: var(--secondary-color);
 }
 
+#export-sheets-btn {
+    background-color: var(--primary-color);
+}
+
+.action-buttons {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
 /* Enhanced class selection */
 .class-selection {
     display: flex;
