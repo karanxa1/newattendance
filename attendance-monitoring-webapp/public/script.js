@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('class-form').addEventListener('submit', createClass);
     document.getElementById('generate-report-btn').addEventListener('click', generateReport);
     document.getElementById('export-sheets-btn').addEventListener('click', exportToGoogleSheets);
+document.getElementById('export-excel-btn').addEventListener('click', exportToExcel);
     document.getElementById('graph-class').addEventListener('change', loadAttendanceGraph);
     document.getElementById('update-graph-btn').addEventListener('click', loadAttendanceGraph);
     document.getElementById('export-graph-btn').addEventListener('click', exportGraph);
@@ -654,6 +655,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
+            // Make sure token exists and is properly formatted
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showToast('Authentication token missing. Please log in again.', 'error');
+                localStorage.clear();
+                showLogin();
+                return;
+            }
+
+            // Refresh token before making the request
+            try {
+                await refreshToken();
+            } catch (refreshError) {
+                console.error('Failed to refresh token:', refreshError);
+                // Continue with the current token
+            }
+
             const response = await fetch(`${API_URL}/export-to-sheets`, {
                 method: 'POST',
                 headers: {

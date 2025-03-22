@@ -517,7 +517,7 @@ tr:hover {
     background-color: var(--secondary-color);
 }
 
-#export-sheets-btn {
+#export-sheets-btn, #export-excel-btn {
     background-color: var(--primary-color);
 }
 

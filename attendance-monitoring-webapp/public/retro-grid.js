@@ -54,16 +54,16 @@ class RetroGrid {
 
 // Initialize RetroGrid when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  // Add RetroGrid to the background of the app container
-  const appContainer = document.getElementById('app-container');
+  // Add RetroGrid to the body instead of app-container to ensure it's always visible
+  const container = document.querySelector('.container');
   
-  if (appContainer) {
-    // Make sure the app container has position relative for proper positioning
-    appContainer.style.position = 'relative';
+  if (container) {
+    // Make sure the container has position relative for proper positioning
+    container.style.position = 'relative';
     
     // Create RetroGrid instance
     new RetroGrid({
-      container: appContainer,
+      container: container,
       angle: 65,
       cellSize: 60,
       opacity: 0.3,

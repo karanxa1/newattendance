@@ -143,7 +143,28 @@ router.post('/export-to-sheets', authenticate, authorize([ROLES.ADMIN]), async (
         });
     } catch (error) {
         console.error('Error exporting to Google Sheets:', error);
-        res.status(500).json({ message: 'Failed to export to Google Sheets', error: error.message });
+        
+        // Provide more detailed error information for debugging
+        let errorMessage = 'Failed to export to Google Sheets';
+        let statusCode = 500;
+        
+        // Check for specific Google API errors
+        if (error.code === 401 || error.code === 403) {
+            errorMessage = 'Authentication error with Google API. Please check your credentials.';
+            statusCode = 401;
+        } else if (error.code === 404) {
+            errorMessage = 'Spreadsheet not found. Please check the spreadsheet ID.';
+            statusCode = 404;
+        } else if (error.errors && error.errors.length > 0) {
+            // Extract more specific error information from Google API response
+            errorMessage = `Google API Error: ${error.errors[0].message}`;
+        }
+        
+        res.status(statusCode).json({ 
+            message: errorMessage, 
+            error: error.message,
+            details: error.stack
+        })
     }
 });
 

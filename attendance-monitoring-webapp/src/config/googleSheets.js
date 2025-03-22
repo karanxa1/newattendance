@@ -6,7 +6,11 @@ const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY;
 
 // Properly format the private key - handle newlines and quotes correctly
 const formattedKey = GOOGLE_PRIVATE_KEY ? 
-  GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/^"|"$/g, '') : '';
+  GOOGLE_PRIVATE_KEY
+    .replace(/\\n/g, '\n')  // Replace \n with actual newlines
+    .replace(/^"|"$/g, '')   // Remove surrounding quotes if present
+    .replace(/\r/g, '')      // Remove carriage returns
+    .trim() : '';            // Trim any extra whitespace
 
 // Configure auth client
 const auth = new google.auth.JWT(

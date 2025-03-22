@@ -10,6 +10,7 @@ const classesRouter = require('./classes');
 const graphRouter = require('./graph');
 const authRouter = require('./auth');
 const sheetsRouter = require('./sheets');
+const excelRouter = require('./excel');
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -28,6 +29,7 @@ app.use('/api', classesRouter);
 app.use('/api', graphRouter);
 app.use('/api', authRouter);
 app.use('/api', sheetsRouter);
+app.use('/api', excelRouter);
 
 // Fallback to serve index.html for SPA, but only for non-API routes
 app.get('*', (req, res) => {
