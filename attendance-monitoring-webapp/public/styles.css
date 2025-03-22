@@ -1,44 +1,5 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    background: linear-gradient(135deg, var(--light-gray) 0%, #ffffff 100%);
-    min-height: 100vh;
-    position: relative;
-    overflow-x: hidden;
-    animation: gradientShift 15s ease infinite;
-}
-
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.1) 100%);
-    pointer-events: none;
-    z-index: -1;
-    transition: background 0.3s ease;
-}
-
+/* Apple-Inspired Color Palette */
 :root {
-    /* Apple-inspired color palette */
     --primary-color: #06c; /* Apple blue */
     --primary-dark: #004c99;
     --primary-light: #e6f3ff;
@@ -55,25 +16,25 @@ body::before {
     --text-light: #6e6e73;
     --white: #ffffff;
     --black: #000000;
-    
-    /* Apple-style shadows */
+
+    /* Apple-Style Shadows */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.08);
     --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 1px rgba(0, 0, 0, 0.1);
-    
-    /* Apple-style transitions */
+
+    /* Apple-Style Transitions */
     --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Apple-style border radius */
+
+    /* Apple-Style Border Radius */
     --radius-sm: 6px;
     --radius: 10px;
     --radius-md: 14px;
     --radius-lg: 18px;
     --radius-full: 9999px;
-    
-    /* Spacing system */
+
+    /* Spacing System */
     --space-1: 0.25rem;
     --space-2: 0.5rem;
     --space-3: 0.75rem;
@@ -86,6 +47,7 @@ body::before {
     --space-16: 4rem;
 }
 
+/* Base Styles */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.47059;
@@ -103,6 +65,7 @@ body {
     width: 100%;
 }
 
+/* Header */
 header {
     display: flex;
     justify-content: space-between;
@@ -110,15 +73,16 @@ header {
     margin-bottom: var(--space-8);
     padding: var(--space-4) var(--space-6);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
     background-color: rgba(255, 255, 255, 0.85);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
     position: sticky;
     top: 0;
     z-index: 100;
     box-shadow: var(--shadow-sm);
 }
 
+/* Typography */
 h1 {
     font-size: 2.5rem;
     font-weight: 600;
@@ -158,7 +122,7 @@ h4 {
     display: none !important;
 }
 
-/* Apple-style auth container */
+/* Authentication Container */
 .auth-container {
     max-width: 450px;
     margin: var(--space-16) auto;
@@ -178,7 +142,7 @@ h4 {
     font-weight: 500;
 }
 
-/* Apple-style form styling */
+/* Form Styling */
 .form-group {
     margin-bottom: var(--space-6);
 }
@@ -215,7 +179,7 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
 }
 
-/* Apple-style button styling */
+/* Button Styling */
 button {
     padding: var(--space-3) var(--space-6);
     background-color: var(--primary-color);
@@ -277,7 +241,6 @@ button:focus {
     box-shadow: 0 0 0 3px var(--danger-light);
 }
 
-/* Improved logout button */
 #logout-btn {
     background-color: transparent;
     color: var(--danger-color);
@@ -289,7 +252,7 @@ button:focus {
     color: var(--white);
 }
 
-/* Improved user info display */
+/* User Info Display */
 #user-info {
     display: flex;
     align-items: center;
@@ -312,7 +275,7 @@ button:focus {
     font-size: 0.9rem;
 }
 
-/* Apple-style tab navigation */
+/* Tab Navigation */
 .tab-navigation {
     display: flex;
     margin-bottom: var(--space-6);
@@ -351,7 +314,7 @@ button:focus {
     box-shadow: var(--shadow-sm);
 }
 
-/* Improved tab content */
+/* Tab Content */
 .tab-content {
     background-color: var(--white);
     padding: var(--space-6);
@@ -361,7 +324,7 @@ button:focus {
     border: 1px solid var(--medium-gray);
 }
 
-/* Apple-style table styling */
+/* Table Styling */
 table {
     width: 100%;
     border-collapse: separate;
@@ -372,8 +335,8 @@ table {
     overflow: hidden;
     box-shadow: var(--shadow);
     border: none;
-    backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
 }
 
 th, td {
@@ -391,8 +354,8 @@ th {
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
     border-bottom: 1px solid var(--medium-gray);
 }
 
@@ -405,7 +368,7 @@ tr:hover {
     transition: var(--transition-fast);
 }
 
-/* Table action buttons */
+/* Table Action Buttons */
 .edit-user-btn, .edit-class-btn {
     background-color: var(--primary-color);
     padding: var(--space-2) var(--space-3);
@@ -425,14 +388,14 @@ tr:hover {
     display: flex;
     justify-content: flex-end;
     gap: var(--space-3);
-    backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
     padding: var(--space-4);
     border-radius: var(--radius);
     background-color: rgba(255, 255, 255, 0.85);
 }
 
-/* Improved attendance container */
+/* Attendance Container */
 #attendance-container {
     background-color: var(--white);
     padding: var(--space-6);
@@ -448,11 +411,11 @@ tr:hover {
     margin: var(--space-6) 0;
 }
 
-/* Apple-style student buttons */
+/* Student Buttons */
 .student-btn {
     width: 130px;
     height: 100px;
-    background-color: var(--white);
+    background-color: rgba(255, 255, 255, 0.85);
     color: var(--text-color);
     font-size: 0.95rem;
     text-align: center;
@@ -466,9 +429,8 @@ tr:hover {
     box-shadow: var(--shadow);
     position: relative;
     overflow: hidden;
-    backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
-    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: saturate(180%) blur(20px);
 }
 
 .student-btn:hover {
@@ -490,7 +452,7 @@ tr:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0));
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -500,11 +462,11 @@ tr:hover {
 }
 
 .student-btn.present:before {
-    background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0));
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
     opacity: 1;
 }
 
-/* Action buttons */
+/* Action Buttons */
 #mark-all-btn {
     background-color: var(--primary-color);
 }
@@ -527,7 +489,7 @@ tr:hover {
     margin-bottom: var(--space-4);
 }
 
-/* Enhanced class selection */
+/* Class Selection */
 .class-selection {
     display: flex;
     gap: var(--space-5);
@@ -548,7 +510,7 @@ tr:hover {
     margin-bottom: 0;
 }
 
-/* Report results */
+/* Report Results */
 #report-result {
     margin-top: var(--space-6);
     padding: var(--space-5);
@@ -564,7 +526,7 @@ tr:hover {
     font-weight: 600;
 }
 
-/* Form containers */
+/* Form Containers */
 #user-form-container,
 #class-form-container {
     background-color: var(--light-gray);
@@ -576,12 +538,12 @@ tr:hover {
     box-shadow: var(--shadow-sm);
 }
 
-/* Button spacing */
+/* Button Spacing */
 .form-group button {
     margin-top: var(--space-4);
 }
 
-/* Enhanced responsive styling */
+/* Responsive Design */
 @media (max-width: 768px) {
     .container { 
         padding: var(--space-4); 
@@ -674,7 +636,7 @@ tr:hover {
         padding-right: var(--space-2);
         white-space: nowrap;
         font-weight: 600;
-        content: attr(data-label);
+        content: attr(data-label, "");
     }
     
     td:last-child {
@@ -682,7 +644,7 @@ tr:hover {
     }
 }
 
-/* Enhanced animations */
+/* Animations */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -692,7 +654,7 @@ tr:hover {
     animation: fadeIn 0.3s ease-in;
 }
 
-/* Improved toast notifications */
+/* Toast Notifications */
 .toast {
     position: fixed;
     top: var(--space-5);
@@ -744,7 +706,7 @@ tr:hover {
     to { opacity: 0; visibility: hidden; }
 }
 
-/* Enhanced badges */
+/* Badges */
 .badge {
     display: inline-flex;
     align-items: center;
@@ -756,7 +718,7 @@ tr:hover {
     line-height: 1.4;
 }
 
-/* Form validation */
+/* Form Validation */
 input.error {
     border-color: var(--danger-color);
     box-shadow: 0 0 0 2px var(--danger-light);
@@ -768,7 +730,7 @@ input.error {
     margin-top: var(--space-1);
 }
 
-/* Button states */
+/* Button States */
 button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -790,7 +752,7 @@ form.submitting {
     pointer-events: none;
 }
 
-/* Badge variants */
+/* Badge Variants */
 .badge-admin {
     background-color: var(--primary-light);
     color: var(--primary-dark);
@@ -806,7 +768,7 @@ form.submitting {
     color: var(--text-color);
 }
 
-/* Chart container */
+/* Chart Container */
 #attendanceChart {
     max-width: 100%;
     height: auto !important;
@@ -817,7 +779,7 @@ form.submitting {
     background-color: var(--white);
 }
 
-/* Graph controls */
+/* Graph Controls */
 .graph-controls {
     margin-bottom: var(--space-5);
     display: flex;
@@ -831,13 +793,13 @@ form.submitting {
     border: 1px solid var(--medium-gray);
 }
 
-/* Focus visible for accessibility */
+/* Accessibility */
 :focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
 }
 
-/* Additional helper classes */
+/* Helper Classes */
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 .text-left { text-align: left; }
@@ -858,7 +820,7 @@ form.submitting {
 .mb-4 { margin-bottom: var(--space-4); }
 .mb-5 { margin-bottom: var(--space-5); }
 
-/* Skip navigation link for accessibility */
+/* Skip Navigation Link */
 .skip-link {
     position: absolute;
     top: -40px;
@@ -872,7 +834,8 @@ form.submitting {
 .skip-link:focus {
     top: 0;
 }
-/* Dark Mode Toggle Button Styles */
+
+/* Dark Mode Toggle */
 .dark-mode-container {
     display: flex;
     align-items: center;
@@ -884,12 +847,10 @@ form.submitting {
     width: 60px;
     background-color: #ffffff;
     border-radius: 15px;
-    -webkit-box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
-    inset 0 0 20px 1px rgba(0, 0, 0, 0.488), 5px 10px 15px rgba(0, 0, 0, 0.096),
-    inset 0 0 0 3px rgba(0, 0, 0, 0.3);
     box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
-    inset 0 0 20px 1px rgba(0, 0, 0, 0.488), 5px 10px 15px rgba(0, 0, 0, 0.096),
-    inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+                inset 0 0 20px 1px rgba(0, 0, 0, 0.488),
+                5px 10px 15px rgba(0, 0, 0, 0.096),
+                inset 0 0 0 3px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -898,12 +859,10 @@ form.submitting {
 }
 
 .dark-mode-toggle-label:hover {
-    -webkit-transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
     transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
 }
 
 #dark-mode-checkbox:checked ~ .dark-mode-toggle-label:hover {
-    -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
     transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
 }
 
@@ -915,7 +874,6 @@ form.submitting {
     left: 35px;
     background-color: #000000;
     background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
-    -webkit-transition: 0.4s;
     transition: 0.4s;
 }
 
@@ -926,34 +884,23 @@ form.submitting {
     width: 20px;
     border-radius: 50%;
     background-color: #000000;
-    background-image: linear-gradient(
-        130deg,
-        #757272 10%,
-        #ffffff 11%,
-        #726f6f 62%
-    );
+    background-image: linear-gradient(130deg, #757272 10%, #ffffff 11%, #726f6f 62%);
     left: 5px;
-    -webkit-box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3),
-    5px 5px 5px rgba(0, 0, 0, 0.3);
     box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3), 5px 5px 5px rgba(0, 0, 0, 0.3);
-    -webkit-transition: 0.4s;
     transition: 0.4s;
 }
 
-/* Add or update these styles */
-
-/* Ensure the graph container has a maximum height and handles overflow */
+/* Graph and Chart */
 #graph {
-    max-height: 800px; /* Matches the maxHeight from script.js */
-    overflow-y: auto; /* Adds a scrollbar if content exceeds max-height */
+    max-height: 800px;
+    overflow-y: auto;
     position: relative;
     margin-bottom: var(--space-5);
 }
 
-/* Ensure the canvas respects the container's height and has proper styling */
 #attendanceChart {
     max-width: 100%;
-    height: 100% !important; /* Ensures the canvas fills the container height */
+    height: 100% !important;
     border: 1px solid var(--medium-gray);
     border-radius: var(--radius);
     padding: var(--space-4);
@@ -961,132 +908,159 @@ form.submitting {
     box-shadow: var(--shadow-sm);
 }
 
-/* Adjust graph controls for better alignment and spacing */
-.graph-controls {
-    margin-bottom: var(--space-5);
+/* Student Data Container */
+#student-data-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.student-entry {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.student-entry h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 16px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.checkbox-group {
     display: flex;
-    gap: var(--space-3);
-    flex-wrap: wrap;
     align-items: center;
-    background-color: var(--white);
-    padding: var(--space-4);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--medium-gray);
+    margin-top: 5px;
 }
-/* Apple-style Dark Mode */
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Dark Mode Styles */
 body.dark-mode {
-    background-color: #000000;
-    color: #f5f5f7;
-}
-
-body.dark-mode h1,
-body.dark-mode h2,
-body.dark-mode h3,
-body.dark-mode h4,
-body.dark-mode h5,
-body.dark-mode h6 {
-    color: #f5f5f7;
-}
-
-body.dark-mode header {
-    background-color: rgba(0, 0, 0, 0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .container {
-    background-color: #1d1d1f;
-    border: none;
-}
-
-body.dark-mode .auth-container,
-body.dark-mode .tab-content,
-body.dark-mode #attendance-container,
-body.dark-mode #report-result,
-body.dark-mode .class-selection,
-body.dark-mode .graph-controls {
-    background-color: #1d1d1f;
-    border: none;
-    box-shadow: var(--shadow);
-}
-
-body.dark-mode .tab-navigation {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .tab-btn {
-    color: #f5f5f7;
-}
-
-body.dark-mode .tab-btn:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .tab-btn.active {
-    background-color: var(--primary-color);
-}
-
-body.dark-mode table {
-    background-color: #1d1d1f;
-    border: none;
-}
-
-body.dark-mode table th {
     background-color: #1d1d1f;
     color: #f5f5f7;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
 
-body.dark-mode table td {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: #f5f5f7;
-}
+    .auth-container,
+    .tab-content,
+    #attendance-container,
+    #report-result,
+    .class-selection,
+    .graph-controls {
+        background-color: #1d1d1f;
+        border: none;
+        box-shadow: var(--shadow);
+    }
 
-body.dark-mode tr:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-}
+    .tab-navigation {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 
-body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea {
-    background-color: #2c2c2e;
-    color: #f5f5f7;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
+    .tab-btn {
+        color: #f5f5f7;
+    }
 
-body.dark-mode input:focus,
-body.dark-mode select:focus,
-body.dark-mode textarea:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.3);
-}
+    .tab-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 
-body.dark-mode .student-btn {
-    background-color: #2c2c2e;
-    color: #f5f5f7;
-    box-shadow: var(--shadow);
-}
+    .tab-btn.active {
+        background-color: var(--primary-color);
+    }
 
-body.dark-mode .student-btn.present {
-    background-color: var(--secondary-color);
-    color: #ffffff;
-}
+    table {
+        background-color: #1d1d1f;
+        border: none;
+    }
 
-body.dark-mode .toast {
-    background-color: #2c2c2e;
-    color: #f5f5f7;
-}
+    th {
+        background-color: #1d1d1f;
+        color: #f5f5f7;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-body.dark-mode .toast-success {
-    background-color: var(--secondary-color);
-}
+    td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        color: #f5f5f7;
+    }
 
-body.dark-mode .toast-error {
-    background-color: var(--danger-color);
-}
+    tr:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
 
-body.dark-mode #user-form-container,
-body.dark-mode #class-form-container {
-    background-color: #2c2c2e;
-    border-left: 4px solid var(--primary-color);
+    input,
+    select,
+    textarea {
+        background-color: #2c2c2e;
+        color: #f5f5f7;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.3);
+    }
+
+    .student-btn {
+        background-color: #2c2c2e;
+        color: #f5f5f7;
+        box-shadow: var(--shadow);
+    }
+
+    .student-btn.present {
+        background-color: var(--secondary-color);
+        color: #ffffff;
+    }
+
+    .toast {
+        background-color: #2c2c2e;
+        color: #f5f5f7;
+    }
+
+    .toast-success {
+        border-left: 4px solid var(--secondary-color);
+    }
+
+    .toast-error {
+        border-left: 4px solid var(--danger-color);
+    }
+
+    #user-form-container,
+    #class-form-container {
+        background-color: #2c2c2e;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    #student-data-container {
+        background-color: #2a2a2a;
+        border-color: #444;
+    }
+
+    .student-entry {
+        background-color: #333;
+        border-color: #444;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .student-entry h4 {
+        color: #ddd;
+        border-bottom-color: #444;
+    }
+
+    .error-message {
+        color: #ff6b6b;
+    }
 }

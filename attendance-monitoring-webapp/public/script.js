@@ -454,6 +454,11 @@ document.getElementById('export-excel-btn').addEventListener('click', exportToEx
                             <button class="delete-class-btn" data-id="${cls.id}"><i class="fas fa-trash-alt"></i> Delete</button>
                         </td>
                     `;
+                    
+                    // Add event listeners to the edit and delete buttons
+                    row.querySelector('.edit-class-btn').addEventListener('click', () => editClass(cls));
+                    row.querySelector('.delete-class-btn').addEventListener('click', () => deleteClass(cls.id));
+                    
                     classesList.appendChild(row);
                 });
 
@@ -493,10 +498,144 @@ document.getElementById('export-excel-btn').addEventListener('click', exportToEx
     function showClassForm() {
         document.getElementById('class-form-container').classList.remove('hidden');
         document.getElementById('class-form').reset();
+        document.getElementById('student-data-container').classList.add('hidden');
     }
 
     function hideClassForm() {
         document.getElementById('class-form-container').classList.add('hidden');
+        // Reset the form to its default state for creating a new class
+        document.getElementById('class-form').reset();
+        document.getElementById('class-form').onsubmit = createClass;
+    }
+    
+    function editClass(cls) {
+        const formContainer = document.getElementById('class-form-container');
+        formContainer.classList.remove('hidden');
+        
+        // Populate the form with existing class data
+        document.getElementById('class-name').value = cls.name;
+        document.getElementById('class-strength').value = cls.strength;
+        
+        // Change the form submission handler to update instead of create
+        document.getElementById('class-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('class-name').value.trim();
+            const strength = parseInt(document.getElementById('class-strength').value);
+            
+            if (!name || isNaN(strength) || strength < 1 || strength > 1000) {
+                showToast('Invalid class name or strength', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/classes/${cls.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, strength })
+                });
+                
+                if (!response.ok) throw new Error('Failed to update class');
+                
+                formContainer.classList.add('hidden');
+                loadClasses('admin');
+                showToast('Class updated successfully', 'success');
+            } catch (error) {
+                showToast(`Error updating class: ${error.message}`, 'error');
+                console.error('Error updating class:', error);
+            }
+        };
+    }
+    
+    async function deleteClass(id) {
+        if (!confirm('Are you sure you want to delete this class?')) return;
+        
+        try {
+            const response = await fetch(`${API_URL}/admin/classes/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            
+            if (!response.ok) throw new Error('Failed to delete class');
+            
+            loadClasses('admin');
+            showToast('Class deleted successfully', 'success');
+        } catch (error) {
+            showToast(`Error deleting class: ${error.message}`, 'error');
+            console.error('Error deleting class:', error);
+        }
+    }
+
+    // Toggle student data container visibility based on checkbox
+    document.getElementById('add-student-data').addEventListener('change', function() {
+        const studentDataContainer = document.getElementById('student-data-container');
+        const jsonDataContainer = document.getElementById('json-data-container');
+        
+        if (this.checked) {
+            generateStudentFields();
+            studentDataContainer.classList.remove('hidden');
+            // If JSON import is checked, uncheck it
+            if (document.getElementById('import-json-data').checked) {
+                document.getElementById('import-json-data').checked = false;
+                jsonDataContainer.classList.add('hidden');
+            }
+        } else {
+            studentDataContainer.classList.add('hidden');
+        }
+    });
+
+    // Toggle JSON data container visibility based on checkbox
+    document.getElementById('import-json-data').addEventListener('change', function() {
+        const jsonDataContainer = document.getElementById('json-data-container');
+        const studentDataContainer = document.getElementById('student-data-container');
+        
+        if (this.checked) {
+            jsonDataContainer.classList.remove('hidden');
+            // If manual student data entry is checked, uncheck it
+            if (document.getElementById('add-student-data').checked) {
+                document.getElementById('add-student-data').checked = false;
+                studentDataContainer.classList.add('hidden');
+            }
+        } else {
+            jsonDataContainer.classList.add('hidden');
+        }
+    });
+
+    // Generate student input fields based on class strength
+    document.getElementById('class-strength').addEventListener('change', function() {
+        if (document.getElementById('add-student-data').checked) {
+            generateStudentFields();
+        }
+    });
+
+    function generateStudentFields() {
+        const strength = parseInt(document.getElementById('class-strength').value) || 0;
+        const container = document.getElementById('student-data-container');
+        container.innerHTML = '';
+        
+        if (strength <= 0 || strength > 100) {
+            container.innerHTML = '<p class="error-message">Please enter a valid class strength (1-100)</p>';
+            return;
+        }
+
+        for (let i = 0; i < strength; i++) {
+            const studentDiv = document.createElement('div');
+            studentDiv.className = 'student-entry';
+            studentDiv.innerHTML = `
+                <h4>Student ${i + 1}</h4>
+                <div class="form-group">
+                    <label for="student-name-${i}"><i class="fas fa-user"></i> Name:</label>
+                    <input type="text" id="student-name-${i}" name="student-name-${i}" placeholder="Student name">
+                </div>
+                <div class="form-group">
+                    <label for="student-roll-${i}"><i class="fas fa-id-card"></i> Roll Number:</label>
+                    <input type="text" id="student-roll-${i}" name="student-roll-${i}" placeholder="Roll number">
+                </div>
+            `;
+            container.appendChild(studentDiv);
+        }
     }
 
     async function createClass(e) {
@@ -509,6 +648,31 @@ document.getElementById('export-excel-btn').addEventListener('click', exportToEx
             return;
         }
 
+        let students = [];
+        
+        // If student data checkbox is checked, collect student data
+        if (document.getElementById('add-student-data').checked) {
+            for (let i = 0; i < strength; i++) {
+                const studentName = document.getElementById(`student-name-${i}`)?.value.trim() || `Student ${i + 1}`;
+                const rollNumber = document.getElementById(`student-roll-${i}`)?.value.trim() || `${i + 1}`;
+                
+                students.push({
+                    id: i + 1,
+                    name: studentName,
+                    rollNumber: rollNumber,
+                    attendance: []
+                });
+            }
+        } else {
+            // Default student data if not provided
+            students = Array.from({ length: strength }, (_, i) => ({
+                id: i + 1,
+                name: `Student ${i + 1}`,
+                rollNumber: `${i + 1}`,
+                attendance: []
+            }));
+        }
+
         try {
             const response = await fetch(`${API_URL}/admin/classes`, {
                 method: 'POST',
@@ -516,7 +680,7 @@ document.getElementById('export-excel-btn').addEventListener('click', exportToEx
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ name, strength })
+                body: JSON.stringify({ name, strength, students })
             });
             
             if (!response.ok) throw new Error('Failed to create class');

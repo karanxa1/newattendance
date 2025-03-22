@@ -104,6 +104,39 @@
                                 <label for="class-strength"><i class="fas fa-users"></i> Class Strength:</label>
                                 <input type="number" id="class-strength" min="1" required placeholder="Number of students">
                             </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-user-graduate"></i> Student Data:</label>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="add-student-data" name="add-student-data">
+                                    <label for="add-student-data">Add student details</label>
+                                </div>
+                                <div class="checkbox-group" style="margin-top: 10px;">
+                                    <input type="checkbox" id="import-json-data" name="import-json-data">
+                                    <label for="import-json-data">Import student data from JSON</label>
+                                </div>
+                            </div>
+                            <div id="json-data-container" class="hidden">
+                                <div class="form-group">
+                                    <label for="json-data"><i class="fas fa-code"></i> JSON Data:</label>
+                                    <textarea id="json-data" rows="6" placeholder="Paste your JSON data here"></textarea>
+                                    <div class="json-example">
+                                        <p><strong>Example JSON format:</strong></p>
+                                        <pre>[
+  {
+    "name": "John Doe",
+    "rollNumber": "101"
+  },
+  {
+    "name": "Jane Smith",
+    "rollNumber": "102"
+  }
+]</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="student-data-container" class="hidden">
+                                <!-- Student data fields will be dynamically added here -->
+                            </div>
                             <button type="submit" class="btn-success"><i class="fas fa-save"></i> Save Class</button>
                             <button type="button" id="cancel-class-btn" class="btn-danger"><i class="fas fa-times"></i> Cancel</button>
                         </form>

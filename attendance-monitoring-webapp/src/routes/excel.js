@@ -6,6 +6,7 @@ const { doc, getDoc } = require('firebase/firestore');
 const authenticate = require('../middleware/authenticate');
 const authorize = require('../middleware/authorize');
 const { ROLES } = require('../config/auth');
+const entcStudents = require('../data/entcStudents');
 
 // Export attendance data to Excel
 router.post('/export-to-excel', authenticate, authorize([ROLES.ADMIN]), async (req, res) => {
@@ -36,6 +37,7 @@ router.post('/export-to-excel', authenticate, authorize([ROLES.ADMIN]), async (r
             return {
                 id: student.id,
                 name: student.name,
+                rollNumber: student.rollNumber || student.id, // Use rollNumber if available, otherwise use id
                 attendance: filteredAttendance
             };
         });
@@ -63,8 +65,13 @@ router.post('/export-to-excel', authenticate, authorize([ROLES.ADMIN]), async (r
             properties: { tabColor: { argb: '4F81BD' } }
         });
         
-        // Add header row with student names and dates
-        const headerRow = ['Student ID', 'Student Name', ...sortedDates];
+        // Add a separate worksheet for ENTC SE students
+        const entcWorksheet = workbook.addWorksheet('ENTC SE Students', {
+            properties: { tabColor: { argb: '70AD47' } }
+        });
+        
+        // Add header row with student names, roll numbers and dates
+        const headerRow = ['Student ID', 'Student Name', 'Roll Number', ...sortedDates];
         worksheet.addRow(headerRow);
         
         // Style the header row
@@ -87,7 +94,9 @@ router.post('/export-to-excel', authenticate, authorize([ROLES.ADMIN]), async (r
         
         // Add data rows for each student
         attendanceData.forEach(student => {
-            const rowData = [student.id, student.name];
+            // Use student.id as roll number if not explicitly provided
+            const rollNumber = student.rollNumber || student.id;
+            const rowData = [student.id, student.name, rollNumber];
             
             // For each date, check if the student was present
             sortedDates.forEach(date => {
@@ -100,6 +109,46 @@ router.post('/export-to-excel', authenticate, authorize([ROLES.ADMIN]), async (r
         
         // Auto-fit columns
         worksheet.columns.forEach(column => {
+            let maxLength = 0;
+            column.eachCell({ includeEmpty: true }, cell => {
+                const columnLength = cell.value ? cell.value.toString().length : 10;
+                if (columnLength > maxLength) {
+                    maxLength = columnLength;
+                }
+            });
+            column.width = maxLength < 10 ? 10 : maxLength + 2;
+        });
+        
+        // Add ENTC SE student data to the second worksheet
+        // Add header row for ENTC SE students
+        const entcHeaderRow = ['Student ID', 'Student Name', 'Roll Number'];
+        entcWorksheet.addRow(entcHeaderRow);
+        
+        // Style the header row
+        const entcHeaderRowCells = entcWorksheet.getRow(1);
+        entcHeaderRowCells.eachCell((cell) => {
+            cell.font = { bold: true };
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: '70AD47' }
+            };
+            cell.alignment = { horizontal: 'center' };
+            cell.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+            };
+        });
+        
+        // Add data rows for each ENTC SE student
+        entcStudents.forEach(student => {
+            entcWorksheet.addRow([student.id, student.name, student.rollNumber]);
+        });
+        
+        // Auto-fit columns for ENTC SE worksheet
+        entcWorksheet.columns.forEach(column => {
             let maxLength = 0;
             column.eachCell({ includeEmpty: true }, cell => {
                 const columnLength = cell.value ? cell.value.toString().length : 10;
