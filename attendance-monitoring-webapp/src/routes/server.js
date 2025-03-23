@@ -41,6 +41,9 @@ app.get('*', (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+const host = '0.0.0.0'; // Listen on all network interfaces for Hugging Face compatibility
+
+app.listen(port, host, () => {
+    console.log(`Server running on http://${host}:${port}`);
+    console.log('For local development, access at http://localhost:' + port);
 });

@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const graphContainer = document.getElementById('graph');
 
     // Config and global variables
-    const API_URL = 'http://localhost:3000/api';
+    // Dynamically determine the API URL based on the current host
+    const API_URL = window.location.origin + '/api';
     // Add null check before setting date value
     const attendanceDateField = document.getElementById('attendance-date');
     if (attendanceDateField) {
