@@ -9,7 +9,12 @@ module.exports = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
-        req.user = decoded;
+        req.user = {
+            uid: decoded.id,
+            token: {
+                role: decoded.role
+            }
+        };
         next();
     } catch (err) {
         console.error('Token verification error:', err.message);
