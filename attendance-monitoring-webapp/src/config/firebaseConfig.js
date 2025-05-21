@@ -2,14 +2,15 @@
 const { initializeApp } = require('firebase/app');
 const { getFirestore } = require('firebase/firestore');
 
-// Your web app's Firebase configuration (for temporary use)
+// Your web app's Firebase configuration
+// For production, these values should be set as environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyDyzx2zbkFltHkxVBE-BSOto_AnWF5CzFk",
-  authDomain: "fir-675f5.firebaseapp.com",
-  projectId: "fir-675f5",
-  storageBucket: "fir-675f5.appspot.com",
-  messagingSenderId: "883541718161",
-  appId: "1:883541718161:web:e8d4244c19d3187facfb30"
+  apiKey: "AIzaSyDQdcFjbtugwpb3SG4J8O6tbOpG1pbHBos",
+  authDomain: "mindcare-2d98a.firebaseapp.com",
+  projectId: "mindcare-2d98a",
+  storageBucket: "mindcare-2d98a.firebasestorage.app",
+  messagingSenderId: "734092205516",
+  appId: "1:734092205516:web:c46ef2f1be7cfc0ba09169"
 };
 
 // Initialize Firebase

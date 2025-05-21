@@ -14,7 +14,7 @@ router.get('/admin/users', authenticate, authorize([ROLES.ADMIN]), async (req, r
             id: doc.id,
             ...doc.data()
         }));
-        res.json(users); // Ensure JSON response
+        res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).json({ message: 'Failed to fetch users', error: error.message });
@@ -28,8 +28,21 @@ router.post('/admin/users', authenticate, authorize([ROLES.ADMIN]), async (req, 
         if (!username || !role) {
             return res.status(400).json({ message: 'Username and role are required' });
         }
+        
+        const bcrypt = require('bcrypt');
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Check if first user
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const userRole = usersSnapshot.size === 0 ? 'admin' : role;
+        
         const newUserRef = doc(collection(db, 'users'));
-        await setDoc(newUserRef, { username, role, password }); // In production, hash password with bcrypt
+        await setDoc(newUserRef, {
+            username,
+            role: userRole,
+            password: hashedPassword,
+            createdAt: new Date().toISOString()
+        }); // In production, hash password with bcrypt
         res.status(201).json({ id: newUserRef.id, username, role });
     } catch (error) {
         console.error('Error creating user:', error);

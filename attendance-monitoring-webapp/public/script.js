@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const graphContainer = document.getElementById('graph');
 
     // Config and global variables
-    const API_URL = 'http://localhost:3000/api';
+    // Dynamically determine the API URL based on the current host
+    const API_URL = window.location.origin + '/api';
     // Add null check before setting date value
     const attendanceDateField = document.getElementById('attendance-date');
     if (attendanceDateField) {
@@ -239,9 +240,13 @@ document.getElementById('export-excel-btn').addEventListener('click', exportToEx
         usersList.innerHTML = '<tr><td colspan="4">Loading users...</td></tr>';
         
         try {
+            console.log('Fetching users from:', API_URL);
+            const token = localStorage.getItem('token');
+            console.log('Using token:', token ? 'present' : 'missing');
             const response = await fetch(`${API_URL}/admin/users`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
+            console.log('Users response status:', response.status);
             
             if (!response.ok) {
                 if (response.status === 401) {
@@ -425,9 +430,13 @@ document.getElementById('export-excel-btn').addEventListener('click', exportToEx
         if (userRole === 'admin') classesList.innerHTML = '<tr><td colspan="4">Loading classes...</td></tr>';
 
         try {
+            console.log('Fetching classes from:', API_URL);
+            const token = localStorage.getItem('token');
+            console.log('Using token:', token ? 'present' : 'missing');
             const response = await fetch(`${API_URL}/classes`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
+            console.log('Classes response status:', response.status);
             
             if (!response.ok) {
                 if (response.status === 401) {
